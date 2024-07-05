@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class User extends Model {
+class Cache extends Model {
+    protected $table = 'cache';
+
     protected $primaryKey  = 'chat_id';
 
     protected $fillable = [
         'chat_id',
-        'name',
+        'action'
     ];
 
     public $timestamps = false;

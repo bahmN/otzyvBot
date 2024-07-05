@@ -4,12 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class User extends Model {
-    protected $primaryKey  = 'chat_id';
-
+class Review extends Model {
     protected $fillable = [
         'chat_id',
-        'name',
+        'blogger_name'
     ];
 
     public $timestamps = false;
