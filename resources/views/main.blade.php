@@ -10,12 +10,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap" rel="stylesheet">
 
-    <link type="text/css" href="{{asset('styles/styles.css')}}" rel="stylesheet" />
+    <link type="text/css" href="{{asset('styles/styles.css')}}?<?php echo time(); ?>" rel="stylesheet" />
 </head>
 
 <body>
     <header>
-        <a href="/adminPanel">OTZYVY.FUN</a>
+        <a href="/admin">OTZYVY.FUN</a>
     </header>
 
     @yield('content')

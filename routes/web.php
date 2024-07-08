@@ -17,5 +17,6 @@ Route::get('/', function () {
 });
 
 Route::get('/admin', [AdminController::class, 'index'])->name('admin');
+Route::post('/admin/getScreenshot', [AdminController::class, 'getScreenshot']);
 Route::post('/admin/approve', [AdminController::class, 'approve']);
 Route::post('/admin/reject', [AdminController::class, 'reject']);

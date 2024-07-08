@@ -10,27 +10,45 @@ use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Stringable;
 
 class Handler extends WebhookHandler {
     public function start() {
         if (!empty($this->message)) {
-            $this->chat->deleteMessage($this->message->id())->send();
-        }
-        $user = User::where('chat_id', $this->chat->chat_id)->first();
+            $chat = TelegraphChat::find($this->message->chat()->id());
+            $chat->deleteMessage($this->message->id())->send();
+            $user = User::where('chat_id', $this->chat->chat_id)->first();
 
-        if (!$user) {
-            $cache = new Cache();
+            if (!$user) {
+                $cache = new Cache();
 
-            $this->chat->message(__('greeting'))->send();
-            sleep(1);
-            $this->chat->message(__('getUserName'))->send();
+                $chat->message(__('greeting'))->send();
+                sleep(1);
+                $chat->message(__('getUserName'))->send();
 
-            $cache->chat_id = $this->chat->chat_id;
-            $cache->action = 'getName';
-            $cache->save();
+                $cache->chat_id = $chat->chat_id;
+                $cache->action = 'getName';
+                $cache->save();
+            } else {
+                $this->menu();
+            }
         } else {
-            $this->menu();
+            $user = User::where('chat_id', $this->chat->chat_id)->first();
+
+            if (!$user) {
+                $cache = new Cache();
+
+                $this->chat->message(__('greeting'))->send();
+                sleep(1);
+                $this->chat->message(__('getUserName'))->send();
+
+                $cache->chat_id = $this->chat->chat_id;
+                $cache->action = 'getName';
+                $cache->save();
+            } else {
+                $this->menu();
+            }
         }
     }
 
@@ -199,23 +217,46 @@ class Handler extends WebhookHandler {
         $cache->blogger_name = null;
         $cache->save();
 
-        $this->chat->message(__('menu'))
-            ->keyboard(
-                Keyboard::make()
-                    ->row([
-                        Button::make(trans_choice('menuButton', 0))
-                            ->action('addReviewStart')
-                    ])
-                    ->row([
-                        Button::make(trans_choice('menuButton', 1))
-                            ->action('statusAccount')
-                    ])
-                    ->row([
-                        Button::make(trans_choice('menuButton', 2))
-                            ->action('searchBlogger')
-                    ])
-            )
-            ->send();
+        if ($this->chat->chat_id == 831429656 || $this->chat->chat_id == 255499895) {
+            $this->chat->message(__('menu'))
+                ->keyboard(
+                    Keyboard::make()
+                        ->row([
+                            Button::make(trans_choice('menuButton', 0))
+                                ->action('addReviewStart')
+                        ])
+                        ->row([
+                            Button::make(trans_choice('menuButton', 1))
+                                ->action('statusAccount')
+                        ])
+                        ->row([
+                            Button::make(trans_choice('menuButton', 2))
+                                ->action('searchBlogger')
+                        ])
+                        ->row([
+                            Button::make('🖥Админ-панель')->webApp('https://otzyvy.fun/admin?chat_id=' . $this->chat->chat_id),
+                        ])
+                )
+                ->send();
+        } else {
+            $this->chat->message(__('menu'))
+                ->keyboard(
+                    Keyboard::make()
+                        ->row([
+                            Button::make(trans_choice('menuButton', 0))
+                                ->action('addReviewStart')
+                        ])
+                        ->row([
+                            Button::make(trans_choice('menuButton', 1))
+                                ->action('statusAccount')
+                        ])
+                        ->row([
+                            Button::make(trans_choice('menuButton', 2))
+                                ->action('searchBlogger')
+                        ])
+                )
+                ->send();
+        }
     }
 
     public function addReviewStart() {
@@ -244,6 +285,14 @@ class Handler extends WebhookHandler {
         $cache->save();
 
         $this->chat->message(trans_choice('addReview', 2))->send();
+    }
+
+    public function addReviewGetScreenshot() {
+        $cache = Cache::where('chat_id', $this->chat->chat_id)->first();
+        $cache->action = 'getScreenshotReview';
+        $cache->save();
+
+        $this->chat->message(trans_choice('addReview', 5))->send();
     }
 
     public function addReviewSuccess() {
@@ -275,7 +324,7 @@ class Handler extends WebhookHandler {
                 'status' => 'Средний закупщик',
                 'discount' => 3
             );
-        } else if ($user->amount_bonus >= 556 && $user->amount_bonus <= 1555) {
+        } else if ($user->amount_bonus >= 556) {
             $statusData = array(
                 'status' => 'Профессиональный закупщик',
                 'discount' => 5
@@ -349,8 +398,6 @@ class Handler extends WebhookHandler {
         $cache = Cache::where('chat_id', $this->chat->chat_id)->first();
 
         if ($cache->action == 'getName') {
-            $this->chat->deleteMessage($this->message->id())->send();
-
             $user = new User();
             $user->chat_id = $this->chat->chat_id;
             $user->name = $text;
@@ -358,8 +405,6 @@ class Handler extends WebhookHandler {
 
             $this->getIncome();
         } else if ($cache->action == 'getBloggerName') {
-            $this->chat->deleteMessage($this->message->id())->send();
-
             $review = new Review();
             $review->chat_id = $this->chat->chat_id;
             $review->blogger_name = $text;
@@ -370,18 +415,23 @@ class Handler extends WebhookHandler {
 
             $this->addReviewGetResponseToQuestions();
         } else if ($cache->action == 'getResponseToQuestions') {
-            $this->chat->deleteMessage($this->message->id())->send();
-
             $review = Review::where('chat_id', $this->chat->chat_id)
                 ->where('blogger_name', $cache->blogger_name)
                 ->first();
             $review->text_review = $text;
             $review->save();
 
+            $this->addReviewGetScreenshot();
+        } else if ($cache->action == 'getScreenshotReview') {
+            $review = Review::where('chat_id', $this->chat->chat_id)
+                ->where('blogger_name', $cache->blogger_name)
+                ->first();
+
+            $review->id_photo = json_decode($this->message->photos(), true)[2]['id'];
+            $review->save();
+
             $this->addReviewSuccess();
         } else if ($cache->action == 'searchBlogger') {
-            $this->chat->deleteMessage($this->message->id())->send();
-
             $reviews = DB::table('reviews')
                 ->where('blogger_name', $text)
                 ->where('is_moderated', 1)
@@ -403,6 +453,8 @@ class Handler extends WebhookHandler {
                         ])
                 )
                 ->send();
+        } else {
+            $this->chat->deleteMessage($this->message->id())->send();
         }
     }
 }
