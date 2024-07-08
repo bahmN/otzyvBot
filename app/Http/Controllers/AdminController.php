@@ -44,8 +44,9 @@ class AdminController extends Controller {
     }
 
     public function getScreenshot(Request $request) {
-        $pathToPhoto = $this->sendRequest('https://api.telegram.org/bot7474649392:AAHdDwamhU_AmUl0kZPZsKfrRmmgc5BquZg/getFile?file_id=' . $request->id_photo);
-        $link = 'https://api.telegram.org/file/bot7474649392:AAHdDwamhU_AmUl0kZPZsKfrRmmgc5BquZg/' . $pathToPhoto['result']['file_path'];
+        $token = env('BOT_TOKEN');
+        $pathToPhoto = $this->sendRequest("https://api.telegram.org/bot$token/getFile?file_id=" . $request->id_photo);
+        $link = "https://api.telegram.org/file/bot$token/" . $pathToPhoto['result']['file_path'];
 
         return redirect()->to($link)->send();
     }
