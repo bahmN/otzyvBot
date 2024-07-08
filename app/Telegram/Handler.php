@@ -8,8 +8,8 @@ use App\Models\User;
 use DefStudio\Telegraph\Handlers\WebhookHandler;
 use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
+use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Stringable;
 
 class Handler extends WebhookHandler {
@@ -312,6 +312,39 @@ class Handler extends WebhookHandler {
             ->send();
     }
 
+    public function moderated($chatId) {
+        $user = User::where('chat_id', $chatId)->first();
+
+        if ($user->amount_bonus >= 1 && $user->amount_bonus <= 55) {
+            $statusData = array(
+                'status' => 'Начинающий закупщик',
+            );
+        } else if ($user->amount_bonus >= 56 && $user->amount_bonus <= 555) {
+            $statusData = array(
+                'status' => 'Средний закупщик',
+            );
+        } else if ($user->amount_bonus >= 556 && $user->amount_bonus <= 1555) {
+            $statusData = array(
+                'status' => 'Профессиональный закупщик',
+            );
+        }
+
+        TelegraphChat::find($chatId)->message(trans_choice(
+            'addReview',
+            4,
+            [
+                'amountBonus' => $user->amount_bonus,
+                'status' => $statusData['status'],
+            ]
+        ))->keyboard(
+            Keyboard::make()
+                ->row([
+                    Button::make(trans_choice('menuButton', 3))
+                        ->action('start')
+                ])
+        )->send();
+    }
+
     protected function handleChatMessage(Stringable $text): void {
         $cache = Cache::where('chat_id', $this->chat->chat_id)->first();
 
@@ -349,7 +382,10 @@ class Handler extends WebhookHandler {
         } else if ($cache->action == 'searchBlogger') {
             $this->chat->deleteMessage($this->message->id())->send();
 
-            $reviews = DB::table('reviews')->where('blogger_name', $text)->get();
+            $reviews = DB::table('reviews')
+                ->where('blogger_name', $text)
+                ->where('is_moderated', 1)
+                ->get();
             $string = '';
             if (!empty($reviews->toArray())) {
                 foreach ($reviews as $review) {

@@ -1,0 +1,50 @@
+@import url('normalize.css');
+@import url('admin.css');
+
+:root {
+    --dark: #667BC6;
+    --light: #FDFFD2;
+    --highlite: #DA7297;
+    --highlite-light: #FFB4C2;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    font-family: "Play", sans-serif;
+
+    color: var(--dark);
+    background-color: var(--light);
+}
+
+header {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+
+    background-color: var(--highlite-light);
+    text-shadow: -2px 2px var(--highlite);
+}
+
+header a {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--dark);
+    text-decoration: none;
+}
+
+h1 {
+    font-size: 20px;
+}
+
+h2 {
+    font-size: 18px;
+}
+
+button {
+    font-weight: 700;
+    font-size: 16px;
+}
