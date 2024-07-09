@@ -21,5 +21,6 @@
     @yield('content')
 
 </body>
+<script src="{{asset('scripts/loader.js')}}"></script>
 
 </html>

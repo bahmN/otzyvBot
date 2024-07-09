@@ -1,0 +1,30 @@
+.iframe_body {
+    overflow: hidden;
+}
+
+.iframe {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 5px;
+    gap: 15px;
+}
+
+.iframe a {
+    display: flex;
+    justify-content: center;
+    width: 25%;
+    padding: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 10px;
+    background-color: var(--highlite);
+    color: var(--light);
+}
+
+.iframe iframe {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    border: 1px solid var(--highlite);
+    border-radius: 10px;
+}

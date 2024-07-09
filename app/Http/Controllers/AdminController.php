@@ -12,7 +12,8 @@ class AdminController extends Controller {
     public function index(Request $request) {
         $reviews = DB::table('reviews')->where('is_moderated', 0)->simplePaginate(2);
         $reviews2 = DB::table('reviews')->whereNot('is_moderated', 0)->simplePaginate(2);
-        $users = DB::table('users')->simplePaginate(2);
+        $users = DB::table('users')->get();
+        $users2 = DB::table('users')->simplePaginate(2);
         $tgChats = DB::table('telegraph_chats')->get();
         foreach ($tgChats as $tgChat) {
             foreach ($users as $user) {
@@ -21,9 +22,16 @@ class AdminController extends Controller {
                 }
             }
         }
+        foreach ($tgChats as $tgChat) {
+            foreach ($users2 as $user) {
+                if ($tgChat->chat_id == $user->chat_id) {
+                    $user->link = 't.me/' . explode(' ', $tgChat->name)[1];
+                }
+            }
+        }
         $adminId = array(255499895, env('ADMIN_ID'));
         $isAdmin = in_array($request->chat_id, $adminId);
-        return view('admin', ['reviews' => $reviews, 'reviews2' => $reviews2, 'users' => $users, 'isAdmin' => $isAdmin, 'chatId' => $request->chat_id]);
+        return view('admin', ['reviews' => $reviews, 'reviews2' => $reviews2, 'users' => $users, 'users2' => $users2, 'isAdmin' => $isAdmin, 'chatId' => $request->chat_id]);
     }
 
     public function approve(Request $request) {
@@ -55,8 +63,7 @@ class AdminController extends Controller {
         $token = env('BOT_TOKEN');
         $pathToPhoto = $this->sendRequest("https://api.telegram.org/bot$token/getFile?file_id=" . $request->id_photo);
         $link = "https://api.telegram.org/file/bot$token/" . $pathToPhoto['result']['file_path'];
-
-        return redirect()->to($link)->send();
+        return view('iframe', ['link' => $link, 'chat_id' => $request->chat_id]);
     }
 
     public function sendRequest($url) {

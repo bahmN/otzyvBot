@@ -1,11 +1,13 @@
 @import url('normalize.css');
 @import url('admin.css');
+@import url('iframe.css');
 
 :root {
     --dark: #667BC6;
     --light: #FDFFD2;
     --highlite: #DA7297;
     --highlite-light: #FFB4C2;
+    --highlite-light-opacity: rgba(255, 180, 194, 0.3);
 }
 
 * {
