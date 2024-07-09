@@ -27,6 +27,12 @@ hr {
     gap: 5px
 }
 
+.admin__container a {
+    color: var(--highlite-light);
+    font-weight: 400;
+    text-decoration: none;
+}
+
 .admin__container span {
     font-weight: 400;
 }

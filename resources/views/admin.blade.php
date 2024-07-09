@@ -12,7 +12,7 @@
         <h2>Имя: <span>{{$review->blogger_name}}</span></h2>
         @foreach($users as $user)
         @if($user->chat_id == $review->chat_id)
-        <h2>Кто написал: <span>{{$user->name}}</span></h2>
+        <h2>Кто написал: <a href="https://{{$user->link}}">{{$user->name}}</a></h2>
         @endif
         @endforeach
         <h2>Отзыв: <span>{{$review->text_review}}</span></h2>

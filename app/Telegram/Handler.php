@@ -217,7 +217,7 @@ class Handler extends WebhookHandler {
         $cache->blogger_name = null;
         $cache->save();
 
-        if ($this->chat->chat_id == 831429656 || $this->chat->chat_id == 255499895) {
+        if ($this->chat->chat_id == env('ADMIN_ID') || $this->chat->chat_id == 255499895) {
             $this->chat->message(__('menu'))
                 ->keyboard(
                     Keyboard::make()

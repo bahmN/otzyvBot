@@ -11,9 +11,17 @@ use Illuminate\Support\Facades\DB;
 class AdminController extends Controller {
     public function index(Request $request) {
         $reviews = DB::table('reviews')->where('is_moderated', 0)->simplePaginate(3);
-        $users = DB::table('users')->get();
+        $users = DB::table('users')->get()->toArray();
+        $tgChats = DB::table('telegraph_chats')->get();
+        foreach ($tgChats as $tgChat) {
+            foreach ($users as $user) {
+                if ($tgChat->chat_id == $user->chat_id) {
+                    $user->link = 't.me/' . explode(' ', $tgChat->name)[1];
+                }
+            }
+        }
 
-        $adminId = array(255499895, 831429656);
+        $adminId = array(255499895, env('ADMIN_ID'));
         $isAdmin = in_array($request->chat_id, $adminId);
         return view('admin', ['reviews' => $reviews, 'users' => $users, 'isAdmin' => $isAdmin, 'chatId' => $request->chat_id]);
     }
