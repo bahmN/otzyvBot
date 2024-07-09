@@ -15,7 +15,7 @@
 
 <body>
     <header>
-        <a href="/admin">OTZYVY.FUN</a>
+        <a>OTZYVY.FUN</a>
     </header>
 
     @yield('content')

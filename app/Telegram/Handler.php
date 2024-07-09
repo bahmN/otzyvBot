@@ -207,7 +207,7 @@ class Handler extends WebhookHandler {
         $cache->save();
 
         $this->chat->edit($this->callbackQuery->message()->id())->message(__('successSignUp'))->send();
-        sleep(3);
+        sleep(2);
         $this->menu();
     }
 
@@ -372,7 +372,7 @@ class Handler extends WebhookHandler {
             $statusData = array(
                 'status' => 'Средний закупщик',
             );
-        } else if ($user->amount_bonus >= 556 && $user->amount_bonus <= 1555) {
+        } else if ($user->amount_bonus >= 556) {
             $statusData = array(
                 'status' => 'Профессиональный закупщик',
             );

@@ -10,8 +10,9 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller {
     public function index(Request $request) {
-        $reviews = DB::table('reviews')->where('is_moderated', 0)->simplePaginate(3);
-        $users = DB::table('users')->get()->toArray();
+        $reviews = DB::table('reviews')->where('is_moderated', 0)->simplePaginate(2);
+        $reviews2 = DB::table('reviews')->whereNot('is_moderated', 0)->simplePaginate(2);
+        $users = DB::table('users')->simplePaginate(2);
         $tgChats = DB::table('telegraph_chats')->get();
         foreach ($tgChats as $tgChat) {
             foreach ($users as $user) {
@@ -20,10 +21,9 @@ class AdminController extends Controller {
                 }
             }
         }
-
         $adminId = array(255499895, env('ADMIN_ID'));
         $isAdmin = in_array($request->chat_id, $adminId);
-        return view('admin', ['reviews' => $reviews, 'users' => $users, 'isAdmin' => $isAdmin, 'chatId' => $request->chat_id]);
+        return view('admin', ['reviews' => $reviews, 'reviews2' => $reviews2, 'users' => $users, 'isAdmin' => $isAdmin, 'chatId' => $request->chat_id]);
     }
 
     public function approve(Request $request) {
@@ -39,7 +39,7 @@ class AdminController extends Controller {
         $tHandler = new Handler();
         $tHandler->moderated($inputData['chat_id']);
 
-        return redirect()->route('admin');
+        return redirect()->to('/admin?chat_id=' . $inputData['chat_id'])->send();
     }
 
     public function reject(Request $request) {
@@ -48,7 +48,7 @@ class AdminController extends Controller {
         $review->is_moderated = 2;
         $review->save();
 
-        return redirect()->route('admin');
+        return redirect()->to('/admin?chat_id=' . $inputData['chat_id'])->send();
     }
 
     public function getScreenshot(Request $request) {
