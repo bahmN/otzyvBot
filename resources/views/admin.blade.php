@@ -2,13 +2,16 @@
 @section('content')
 
 @if($isAdmin)
-
 <div class="loader">
     <div class="loader__content"></div>
 </div>
 <section class="admin">
     <div class="tabs">
-        <input class="input" name="tabs" type="radio" id="tab-1" checked="checked" />
+        @if($tabNumb==1)
+        <input class="input" name="tabs" type="radio" id="tab-1" checked />
+        @else
+        <input class="input" name="tabs" type="radio" id="tab-1" />
+        @endif
         <label class="label" for="tab-1">Модерация отзывов</label>
         <div class="panel">
             @foreach($reviews as $review)
@@ -28,14 +31,18 @@
                 <button id="screenBtn" class="screenBtn" formaction="/admin/getScreenshot">Просмотреть скриншот с отзывом</button>
                 <hr>
                 <div class="buttons__section">
-                    <button id="reject" formaction="/c">Отклонить</button>
+                    <button id="reject" formaction="/admin/reject">Отклонить</button>
                     <button id="approve" formaction="/admin/approve">Одобрить</button>
                 </div>
             </form>
             @endforeach
             @include('vendor.pagination.default')
         </div>
+        @if($tabNumb==2)
+        <input class="input" name="tabs" type="radio" id="tab-2" checked />
+        @else
         <input class="input" name="tabs" type="radio" id="tab-2" />
+        @endif
         <label class="label" for="tab-2">Все отзывы</label>
         <div class="panel">
             @foreach($reviews2 as $review)
@@ -63,7 +70,11 @@
             @endforeach
             @include('vendor.pagination.default2')
         </div>
+        @if($tabNumb==3)
+        <input class="input" name="tabs" type="radio" id="tab-3" checked />
+        @else
         <input class="input" name="tabs" type="radio" id="tab-3" />
+        @endif
         <label class="label" for="tab-3">Пользователи</label>
         <div class="panel">
             @foreach($users2 as $user)

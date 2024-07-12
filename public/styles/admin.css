@@ -87,6 +87,17 @@ hr {
     text-decoration: none;
 }
 
+.cursor__active {
+    padding: 5px 10px;
+
+    border-radius: 5px;
+    color: var(--highlite-light);
+    background-color: var(--light);
+
+    font-size: 20px;
+    text-decoration: none;
+}
+
 #screenBtn {
     width: 100%;
     padding: 3px 10px;

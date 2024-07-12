@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller {
     public function index(Request $request) {
-        $reviews = DB::table('reviews')->where('is_moderated', 0)->simplePaginate(2);
-        $reviews2 = DB::table('reviews')->whereNot('is_moderated', 0)->simplePaginate(2);
+        $reviews = DB::table('reviews')->where('is_moderated', 0)->paginate(2);
+        $reviews2 = DB::table('reviews')->whereNot('is_moderated', 0)->paginate(2);
         $users = DB::table('users')->get();
-        $users2 = DB::table('users')->simplePaginate(2);
+        $users2 = DB::table('users')->paginate(2);
         $tgChats = DB::table('telegraph_chats')->get();
+        // dd($users2);
         foreach ($tgChats as $tgChat) {
             foreach ($users as $user) {
                 if ($tgChat->chat_id == $user->chat_id) {
@@ -22,6 +23,7 @@ class AdminController extends Controller {
                 }
             }
         }
+
         foreach ($tgChats as $tgChat) {
             foreach ($users2 as $user) {
                 if ($tgChat->chat_id == $user->chat_id) {
@@ -29,9 +31,19 @@ class AdminController extends Controller {
                 }
             }
         }
-        $adminId = array(255499895, env('ADMIN_ID'));
+
+        $adminId = array(255499895, env('ADMIN_ID'), env('ADMIN_ID_2'));
         $isAdmin = in_array($request->chat_id, $adminId);
-        return view('admin', ['reviews' => $reviews, 'reviews2' => $reviews2, 'users' => $users, 'users2' => $users2, 'isAdmin' => $isAdmin, 'chatId' => $request->chat_id]);
+
+        return view('admin', [
+            'reviews' => $reviews,
+            'reviews2' => $reviews2,
+            'users' => $users,
+            'users2' => $users2,
+            'isAdmin' => $isAdmin,
+            'chatId' => $request->chat_id,
+            'tabNumb' => $request->tab_numb ?? 1
+        ]);
     }
 
     public function approve(Request $request) {

@@ -7,21 +7,41 @@
             < </span>
     </div>
     @else
-    <a class="cursor" href="{{ $users2->previousPageUrl() }}&chat_id={{$chatId}}">
+    <a class="cursor" href="{{ $users2->previousPageUrl() }}&chat_id={{$chatId}}&tab_numb=3">
         < </a>
             @endif
 
-            {{-- Next Page Link --}}
-            @if ($users2->hasMorePages())
+            <?php
+            // config
+            $link_limit = 6; // maximum number of links (a little bit inaccurate, but will be ok for now)
+            ?>
 
-            <a class="cursor" href="{{ $users2->nextPageUrl() }}&chat_id={{$chatId}}">></a>
+            @if ($users2->lastPage() > 1)
+            @for ($i = 1; $i <= $users2->lastPage(); $i++)
+                <?php
+                $half_total_links = floor($link_limit / 2);
+                $from = $users2->currentPage() - $half_total_links;
+                $to = $users2->currentPage() + $half_total_links;
+                if ($users2->currentPage() < $half_total_links) {
+                    $to += $half_total_links - $users2->currentPage();
+                }
+                if ($users2->lastPage() - $users2->currentPage() < $half_total_links) {
+                    $from -= $half_total_links - ($users2->lastPage() - $users2->currentPage()) - 1;
+                }
+                ?>
+                @if ($from < $i && $i < $to) <a href="{{ $users2->url($i) }}&chat_id={{$chatId}}&tab_numb=3" class="{{ ($reviews2->currentPage() == $i) ? 'cursor__active' : 'cursor' }}">{{ $i }}
+    </a>
+    @endif
+    @endfor
+    @endif
 
-            @else
-            <div class="cursor" aria-disabled="true" aria-label="@lang('pagination.next')">
-                <span aria-hidden="true">></span>
-            </div>
-            @endif
+    {{-- Next Page Link --}}
+    @if ($users2->hasMorePages())
+    <a class="cursor" href="{{ $users2->nextPageUrl() }}&chat_id={{$chatId}}&tab_numb=3">></a>
+    @else
+    <div class="cursor" aria-disabled="true" aria-label="@lang('pagination.next')">
+        <span aria-hidden="true">></span>
+    </div>
+    @endif
 </div>
-@else
-
 @endif
