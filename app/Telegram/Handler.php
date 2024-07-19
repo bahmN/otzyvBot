@@ -10,7 +10,6 @@ use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Stringable;
 
 class Handler extends WebhookHandler {
@@ -18,10 +17,14 @@ class Handler extends WebhookHandler {
         if (!empty($this->message)) {
             $chat = TelegraphChat::find($this->message->chat()->id());
             $chat->deleteMessage($this->message->id())->send();
-            $user = User::where('chat_id', $this->chat->chat_id)->first();
+            $user = User::where('chat_id', $chat->chat_id)->first();
 
             if (!$user) {
-                $cache = new Cache();
+                $cache = Cache::where('chat_id', $chat->chat_id)->first();
+
+                if (!$cache) {
+                    $cache = new Cache();
+                }
 
                 $chat->message(__('greeting'))->send();
                 sleep(1);
