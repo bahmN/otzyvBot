@@ -36,7 +36,7 @@
                 </div>
             </form>
             @endforeach
-            @include('vendor.pagination.default')
+            @include('vendor.pagination.default', ['data' => $reviews, 'tab' => 1])
         </div>
         @if($tabNumb==2)
         <input class="input" name="tabs" type="radio" id="tab-2" checked />
@@ -68,7 +68,7 @@
                 @endif
             </form>
             @endforeach
-            @include('vendor.pagination.default2')
+            @include('vendor.pagination.default', ['data' => $reviews2, 'tab' => 2])
         </div>
         @if($tabNumb==3)
         <input class="input" name="tabs" type="radio" id="tab-3" checked />
@@ -87,7 +87,7 @@
                 <h2>Количество баллов: <span>{{$user->amount_bonus}}</span></h2>
             </form>
             @endforeach
-            @include('vendor.pagination.default3')
+            @include('vendor.pagination.default', ['data' => $users2, 'tab' => 3])
         </div>
     </div>
 </section>

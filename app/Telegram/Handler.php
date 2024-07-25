@@ -10,6 +10,7 @@ use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Stringable;
 
 class Handler extends WebhookHandler {
@@ -220,7 +221,7 @@ class Handler extends WebhookHandler {
         $cache->blogger_name = null;
         $cache->save();
 
-        if ($this->chat->chat_id == env('ADMIN_ID') || $this->chat->chat_id == env('ADMIN_ID_2') || $this->chat->chat_id == 255499895) {
+        if ($this->chat->chat_id == env('ADMIN_ID') || $this->chat->chat_id == env('ADMIN_ID_2')) {
             $this->chat->message(__('menu'))
                 ->keyboard(
                     Keyboard::make()
@@ -237,7 +238,7 @@ class Handler extends WebhookHandler {
                                 ->action('searchBlogger')
                         ])
                         ->row([
-                            Button::make('🖥Админ-панель')->webApp('https://otzyvy.fun/admin?chat_id=' . $this->chat->chat_id),
+                            Button::make(trans_choice('menuButton', 4))->webApp('https://otzyvy.fun/admin?chat_id=' . $this->chat->chat_id),
                         ])
                 )
                 ->send();
@@ -316,23 +317,7 @@ class Handler extends WebhookHandler {
 
     public function statusAccount() {
         $user = User::where('chat_id', $this->chat->chat_id)->first();
-
-        if ($user->amount_bonus >= 1 && $user->amount_bonus <= 55) {
-            $statusData = array(
-                'status' => 'Начинающий закупщик',
-                'discount' => 1
-            );
-        } else if ($user->amount_bonus >= 56 && $user->amount_bonus <= 555) {
-            $statusData = array(
-                'status' => 'Средний закупщик',
-                'discount' => 3
-            );
-        } else if ($user->amount_bonus >= 556) {
-            $statusData = array(
-                'status' => 'Профессиональный закупщик',
-                'discount' => 5
-            );
-        }
+        $bonusData = $this->getBonusData($user);
 
         $this->chat->edit($this->callbackQuery->message()->id())
             ->message(__(
@@ -340,8 +325,8 @@ class Handler extends WebhookHandler {
                 [
                     'userName' => $user->name,
                     'amountBonus' => $user->amount_bonus,
-                    'status' => $statusData['status'],
-                    'discount' => $statusData['discount']
+                    'status' => $bonusData['status'],
+                    'discount' => $bonusData['discount']
                 ]
             ))
             ->keyboard(
@@ -367,26 +352,12 @@ class Handler extends WebhookHandler {
     public function moderated($chatId) {
         $user = User::where('chat_id', $chatId)->first();
 
-        if ($user->amount_bonus >= 1 && $user->amount_bonus <= 55) {
-            $statusData = array(
-                'status' => 'Начинающий закупщик',
-            );
-        } else if ($user->amount_bonus >= 56 && $user->amount_bonus <= 555) {
-            $statusData = array(
-                'status' => 'Средний закупщик',
-            );
-        } else if ($user->amount_bonus >= 556) {
-            $statusData = array(
-                'status' => 'Профессиональный закупщик',
-            );
-        }
-
         TelegraphChat::find($chatId)->message(trans_choice(
             'addReview',
             4,
             [
                 'amountBonus' => $user->amount_bonus,
-                'status' => $statusData['status'],
+                'status' => $this->getBonusData($user)['status'],
             ]
         ))->keyboard(
             Keyboard::make()
@@ -459,5 +430,27 @@ class Handler extends WebhookHandler {
         } else {
             $this->chat->deleteMessage($this->message->id())->send();
         }
+    }
+
+    private function getBonusData(User $user): array {
+        $bonusLevels = [
+            ['min' => 1, 'max' => 55, 'status' => 'Начинающий закупщик', 'discount' => 1],
+            ['min' => 56, 'max' => 555, 'status' => 'Средний закупщик', 'discount' => 3],
+            ['min' => 556, 'max' => PHP_INT_MAX, 'status' => 'Профессиональный закупщик', 'discount' => 5],
+        ];
+
+        $bonusData = [];
+
+        foreach ($bonusLevels as $level) {
+            if ($user->amount_bonus >= $level['min'] && $user->amount_bonus <= $level['max']) {
+                $bonusData = [
+                    'status' => $level['status'],
+                    'discount' => $level['discount'],
+                ];
+                break;
+            }
+        }
+
+        return $bonusData;
     }
 }

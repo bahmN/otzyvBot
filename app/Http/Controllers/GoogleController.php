@@ -35,7 +35,7 @@ class GoogleController extends Controller {
             );
         }
 
-        Sheets::spreadsheet('1nw43hPon17RPKE1ftJOwzDOklYNWWSLhRuFCxfizqgU')->sheet('otzyvy.users')->range('A2')->update($dataSet);
+        Sheets::spreadsheet(env('POST_SPREADSHEET_ID'))->sheet('otzyvy.users')->range('A2')->update($dataSet);
     }
 
     public function updateTableOfReviews() {
@@ -60,7 +60,7 @@ class GoogleController extends Controller {
             );
         }
 
-        Sheets::spreadsheet('1nw43hPon17RPKE1ftJOwzDOklYNWWSLhRuFCxfizqgU')->sheet('otzyvy.reviews')->range('A2')->update($dataSet);
+        Sheets::spreadsheet(env('POST_SPREADSHEET_ID'))->sheet('otzyvy.reviews')->range('A2')->update($dataSet);
     }
 
     private function getTgLink($chat_id) {

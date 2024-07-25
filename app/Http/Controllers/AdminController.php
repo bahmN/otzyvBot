@@ -15,7 +15,7 @@ class AdminController extends Controller {
         $users = DB::table('users')->get();
         $users2 = DB::table('users')->paginate(2);
         $tgChats = DB::table('telegraph_chats')->get();
-        // dd($users2);
+
         foreach ($tgChats as $tgChat) {
             foreach ($users as $user) {
                 if ($tgChat->chat_id == $user->chat_id) {
@@ -32,7 +32,7 @@ class AdminController extends Controller {
             }
         }
 
-        $adminId = array(255499895, env('ADMIN_ID'), env('ADMIN_ID_2'));
+        $adminId = array(env('ADMIN_ID'), env('ADMIN_ID_2'));
         $isAdmin = in_array($request->chat_id, $adminId);
 
         return view('admin', [
